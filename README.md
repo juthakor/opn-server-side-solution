@@ -1,1 +1,1 @@
-# opn-server-side-solution
+This project is designed to showcase solutions to the [opn-th-server-side-challenge](https://github.com/opn-ooo/opn-th-server-side-challenge).
