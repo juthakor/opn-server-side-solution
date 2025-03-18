@@ -1,81 +1,164 @@
 const Cart = require('./cart');
 
-describe('Cart Service', () => {
-    let cart;
+describe('Cart Class', () => {
+  let cart;
 
-    beforeEach(() => {
-        cart = new Cart();
-    });
+  beforeEach(() => {
+    cart = new Cart();
+  });
 
-    test('should add products to the cart', () => {
-        cart.addProduct(1, 2, 100);
+  test('addProduct: should add a product with correct quantity, price, and freebie 0', () => {
+    cart.addProduct(1, 3, 100);
+    expect(cart.items[1]).toBeDefined();
+    expect(cart.items[1].quantity).toEqual(3);
+    expect(cart.items[1].price).toEqual(100);
+    expect(cart.items[1].freebie).toEqual(0);
+  });
 
-        expect(cart.items).toHaveProperty('1');
-        expect(cart.items[1].quantity).toBe(2);
-        expect(cart.items[1].price).toBe(100);
-    });
+  test('updateProduct: should update a product', () => {
+    cart.addProduct(1, 3, 100);
+    cart.updateProduct(1, 5, 150);
+    expect(cart.items[1].quantity).toEqual(5);
+    expect(cart.items[1].price).toEqual(150);
+  });
 
-    test('should update a product in the cart', () => {
-        cart.addProduct(1, 2, 100);
-        cart.updateProduct(1, 3, 100);
+  test('updateProduct: should throw error for non-existent product', () => {
+    expect(() => cart.updateProduct(999, 5, 150)).toThrow('Product not found in cart');
+  });
 
-        expect(cart.items[1].quantity).toBe(3);
-    });
+  test('removeProduct: should remove a product', () => {
+    cart.addProduct(1, 3, 100);
+    cart.removeProduct(1);
+    expect(cart.items[1]).toBeUndefined();
+  });
 
-    test('should throw an error when updating a non-existent product', () => {
-        expect(() => cart.updateProduct(99, 1, 50)).toThrow('Product not found in cart');
-    });
+  test('removeProduct: should throw error for non-existent product', () => {
+    expect(() => cart.removeProduct(999)).toThrow('Product not found in cart');
+  });
 
-    test('should remove a product from the cart', () => {
-        cart.addProduct(1, 2, 100);
-        cart.removeProduct(1);
+  test('destroyCart: should clear all items and discounts', () => {
+    cart.addProduct(1, 3, 100);
+    cart.applyDiscount('TestDiscount', 'fixed', 50);
+    cart.destroyCart();
+    expect(Object.keys(cart.items).length).toEqual(0);
+    expect(Object.keys(cart.discounts).length).toEqual(0);
+  });
 
-        expect(cart.items).not.toHaveProperty('1');
-    });
+  test('productExists: should return true if product exists', () => {
+    cart.addProduct(1, 3, 100);
+    expect(cart.productExists(1)).toBe(true);
+  });
 
-    test('should throw an error when removing a non-existent product', () => {
-        expect(() => cart.removeProduct(99)).toThrow('Product not found in cart');
-    });
+  test('isEmpty: should return true for empty cart and false otherwise', () => {
+    expect(cart.isEmpty()).toBe(true);
+    cart.addProduct(1, 3, 100);
+    expect(cart.isEmpty()).toBe(false);
+  });
 
-    test('should calculate the cart total correctly', () => {
-        cart.addProduct(1, 2, 100);
-        cart.addProduct(2, 1, 200);
+  test('listItems: should return all items in the cart', () => {
+    cart.addProduct(1, 3, 100);
+    const items = cart.listItems();
+    expect(items[1].quantity).toEqual(3);
+  });
 
-        expect(cart.getCartTotal()).toBe(400);
-    });
+  test('countUniqueItems: should return the correct count of unique products', () => {
+    cart.addProduct(1, 3, 100);
+    cart.addProduct(2, 2, 50);
+    expect(cart.countUniqueItems()).toEqual(2);
+  });
 
-    test('should apply a percentage discount correctly with decimals', () => {
-        cart.addProduct(1, 2, 100);
-        cart.addProduct(2, 1, 200);
-        cart.applyDiscount('SUMMER', 'percentage', 10.5, 50);
-        const discountTotal = cart.getDiscountTotal();
+  test('totalItemsAmount: should return the total quantity of all products', () => {
+    cart.addProduct(1, 3, 100);
+    cart.addProduct(2, 2, 50);
+    expect(cart.totalItemsAmount()).toEqual(5);
+  });
 
-        expect(typeof discountTotal).toBe('number');
-        expect(discountTotal).toBeLessThanOrEqual(50);
-        expect(discountTotal).toBeLessThanOrEqual(cart.getCartTotal());
-    });
+  test('getCartTotal: should calculate total price excluding freebies', () => {
+    cart.addProduct(1, 5, 100);
+    cart.items[1].freebie = 2;
 
-    test('should not allow a fixed discount to exceed the cart total', () => {
-        cart.addProduct(1, 1, 50);
-        cart.applyDiscount('BIGSALE', 'fixed', 100);
+    expect(cart.getCartTotal()).toEqual(300);
+  });
 
-        expect(cart.getDiscountTotal()).toBe(50);
-    });
+  test('applyDiscount (fixed): should apply fixed discount correctly', () => {
+    cart.addProduct(1, 5, 100);
+    cart.applyDiscount('FixedTest', 'fixed', 100);
 
-    test('should calculate total after discounts correctly', () => {
-        cart.addProduct(1, 2, 100);
-        cart.applyDiscount('DISCOUNT', 'fixed', 50);
+    expect(cart.discounts['FixedTest']).toEqual(100);
+  });
 
-        expect(cart.getTotalAfterDiscounts()).toBe(150);
-    });
+  test('applyDiscount (percentage): should apply percentage discount correctly', () => {
+    cart.addProduct(1, 5, 100);
+    cart.applyDiscount('PercentTest', 'percentage', 10, 100);
 
-    test('should apply a freebie product correctly', () => {
-        cart.addProduct(1, 2, 100);
-        cart.applyFreebie(1, 99);
+    expect(cart.discounts['PercentTest']).toEqual(50);
+  });
 
-        expect(cart.items).toHaveProperty('99');
-        expect(cart.items[99].quantity).toBe(1);
-        expect(cart.items[99].price).toBe(0);
-        expect(cart.items[99].freebie).toBe(true);
-    });
+  test('applyDiscount: fixed discount should not exceed cart total', () => {
+    cart.addProduct(1, 5, 100);
+    cart.applyDiscount('BigDiscount', 'fixed', 600);
+
+    expect(cart.discounts['BigDiscount']).toEqual(500);
+  });
+
+  test('getDiscountTotal: should return the sum of all discounts', () => {
+    cart.addProduct(1, 5, 100);
+    cart.applyDiscount('Disc1', 'fixed', 100);
+    cart.applyDiscount('Disc2', 'percentage', 10);
+
+    expect(cart.getDiscountTotal()).toEqual(150);
+  });
+
+  test('getTotalAfterDiscounts: should calculate the total after discounts correctly', () => {
+    cart.addProduct(1, 5, 100);
+    cart.applyDiscount('Disc1', 'fixed', 100);
+
+    expect(cart.getTotalAfterDiscounts()).toEqual(400);
+  });
+
+  test('applyFreebie: should increase freebie count for an existing product', () => {
+    cart.addProduct(1, 5, 100);
+    expect(cart.items[1].freebie).toEqual(0);
+    
+    cart.applyFreebie(1, 1, 2);
+    expect(cart.items[1].freebie).toEqual(2);
+
+    cart.applyFreebie(1, 1, 1);
+    expect(cart.items[1].freebie).toEqual(3);
+  });
+
+  test('applyFreebie: should do nothing if condition product does not exist', () => {
+    cart.addProduct(1, 5, 100);
+    const initialFreebie = cart.items[1].freebie;
+
+    cart.applyFreebie(2, 1, 2);
+
+    expect(cart.items[1].freebie).toEqual(initialFreebie);
+  });
+
+  test('should correctly calculate total with freebies and fixed discount applied', () => {
+    cart.addProduct(1, 5, 100);
+ 
+    cart.applyFreebie(1, 1, 2);
+  
+    expect(cart.getCartTotal()).toEqual(300);
+  
+    cart.applyDiscount('FIXED', 'fixed', 50);
+
+    expect(cart.getDiscountTotal()).toEqual(50);
+    expect(cart.getTotalAfterDiscounts()).toEqual(250);
+  });
+  
+  test('should correctly calculate total with freebies and percentage discount applied', () => {
+    cart.addProduct(1, 5, 100);
+
+    cart.applyFreebie(1, 1, 2);
+    
+    expect(cart.getCartTotal()).toEqual(300);
+    
+    cart.applyDiscount('PERCENT', 'percentage', 10);
+
+    expect(cart.discounts['PERCENT']).toEqual(30);
+    expect(cart.getTotalAfterDiscounts()).toEqual(270);
+  });
 });
