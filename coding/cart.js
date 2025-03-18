@@ -55,23 +55,33 @@ class Cart {
 
     getCartTotal() {
         let total = 0;
+
         for (let productId in this.items) {
             total += this.items[productId].quantity * this.items[productId].price;
         }
+
         return total;
     }
 
     applyDiscount(name, type, amount, maxAmount = Infinity) {
         const total = this.getCartTotal();
         let discountValue = 0;
+
         if (type === 'fixed') {
             discountValue = amount;
         } else if (type === 'percentage') {
             discountValue = (total * amount) / 100;
+
+            discountValue = parseFloat(discountValue.toFixed(2));
             if (discountValue > maxAmount) {
                 discountValue = maxAmount;
             }
         }
+
+        if (discountValue > total) {
+            discountValue = total;
+        }
+
         this.discounts[name] = discountValue;
     }
 
@@ -84,7 +94,8 @@ class Cart {
     }
 
     getTotalAfterDiscounts() {
-        return this.getCartTotal() - this.getDiscountTotal();
+        const totalAfter = this.getCartTotal() - this.getDiscountTotal();
+        return totalAfter < 0 ? 0 : totalAfter;
     }
 
     applyFreebie(conditionProductId, freebieProductId, freebiePrice = 0) {
@@ -96,25 +107,4 @@ class Cart {
     }
 }
 
-//Unit Test
-try {
-    const cart = new Cart();
-    cart.addProduct(1, 2, 100);
-    cart.addProduct(2, 1, 200);
-
-    cart.updateProduct(1, 3, 100);
-
-    console.log('Cart Total:', cart.getCartTotal());
-
-    cart.applyDiscount('SUMMER', 'percentage', 10, 50);
-    console.log('Total After Discount:', cart.getTotalAfterDiscounts());
-
-    cart.applyFreebie(1, 99);
-    console.log('Cart Items:', cart.listItems());
-
-    cart.removeProduct(2);
-    console.log('Unique Items Count:', cart.countUniqueItems());
-
-} catch (error) {
-    console.error(error.message);
-}
+module.exports = Cart

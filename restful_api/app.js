@@ -14,6 +14,7 @@ let userProfile = {
 
 function authMiddleware(req, res, next) {
     const authHeader = req.headers['authorization'];
+
     if (authHeader === 'Bearer faketoken_user1') {
         next();
     } else {
@@ -34,21 +35,27 @@ app.post('/register', (req, res) => {
     if (!email) {
         return res.status(400).json({ error: 'Email is required' });
     }
+
     if (!isValidEmail(email)) {
         return res.status(400).json({ error: 'Invalid email format' });
     }
+
     if (!name) {
         return res.status(400).json({ error: 'Name is required' });
     }
+
     if (!dob || isNaN(Date.parse(dob))) {
         return res.status(400).json({ error: 'Valid date of birth is required' });
     }
+
     if (!gender || !allowedGenders.includes(gender.toLowerCase())) {
         return res.status(400).json({ error: 'Gender must be one of: male, female, other' });
     }
+
     if (!address) {
         return res.status(400).json({ error: 'Address is required' });
     }
+
     if (newsletter !== undefined && typeof newsletter !== 'boolean') {
         return res.status(400).json({ error: 'Newsletter must be a boolean' });
     }
@@ -64,6 +71,7 @@ app.post('/register', (req, res) => {
     };
 
     userProfile = newUser;
+
     res.status(201).json({ message: 'User registered successfully', user: newUser });
 });
 
@@ -89,9 +97,11 @@ app.put('/profile', authMiddleware, (req, res) => {
     if (dob && isNaN(Date.parse(dob))) {
         return res.status(400).json({ error: 'Invalid date format for dob' });
     }
+
     if (gender && !allowedGenders.includes(gender.toLowerCase())) {
         return res.status(400).json({ error: 'Gender must be one of: male, female, other' });
     }
+
     if (newsletter !== undefined && typeof newsletter !== 'boolean') {
         return res.status(400).json({ error: 'Newsletter must be a boolean' });
     }
@@ -106,6 +116,7 @@ app.put('/profile', authMiddleware, (req, res) => {
 
 app.delete('/profile', authMiddleware, (req, res) => {
     userProfile = {};
+
     res.json({ message: 'User account deleted successfully' });
 });
 
@@ -115,16 +126,19 @@ app.put('/change-password', authMiddleware, (req, res) => {
     if (!currentPassword || !newPassword || !confirmPassword) {
         return res.status(400).json({ error: 'All password fields are required' });
     }
+
     if (currentPassword !== userProfile.password) {
         return res.status(400).json({ error: 'Current password is incorrect' });
     }
+
     if (newPassword !== confirmPassword) {
         return res.status(400).json({ error: 'New password and confirmation do not match' });
     }
 
     userProfile.password = newPassword;
+
     res.json({ message: 'Password changed successfully' });
 });
 
-const PORT = 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+module.exports = app;
