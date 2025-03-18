@@ -15,121 +15,121 @@ graph TD
 ```
 
 ## API Gateway
-**หน้าที่:**
-- ทำหน้าที่เป็น entry point สำหรับ client ทั้งหมด โดยรับ request จาก client แล้วส่งต่อไปยัง microservices ที่เกี่ยวข้อง
+**Responsibilities:**
+- Acts as the entry point for all clients, receiving requests and forwarding them to the relevant microservices.
 
-**ฟีเจอร์:**
+**Features:**
 - **Routing:**
 - **Authentication & Authorization:**
 - **Rate Limiting:**
 - **Request/Response Transformation:** 
 
-**เหตุผล:**
-- ลดความซับซ้อนให้กับ client โดยให้มี interface เดียวสำหรับเข้าถึงระบบทั้งหมด
-- Centralize การจัดการความปลอดภัยและการจัดการ traffic
+**Reasons:**
+- Simplifies client interactions by providing a single interface for accessing the entire system.
+- Centralizes security and traffic management.
 
 
 
 ## Auth Service
-**หน้าที่:**
-- จัดการ authentication และ authorization
+**Responsibilities:**
+- Manages authentication and authorization.
 
-**เหตุผล:**
-- แยกการจัดกา security ออกจาก service อื่น ๆ
-- ให้แต่ละ service โฟกัสที่ business logic ของตัวเองได้
+**Reasons:**
+- Separates security concerns from other services.
+- Allows each service to focus on its business logic.
 
 
 
 ## Content Upload Service
-**หน้าที่:**
-- รับผิดชอบการอัปโหลดรูปภาพและวิดีโอ
-- ทำการ resize/reformat ไฟล์มีเดียตามความจำเป็น
+**Responsibilities:**
+- Handles image and video uploads.
+- Resizes/reformats media files as necessary.
 
-**เทคโนโลยี:**
-- ใช้ serverless functions (เช่น AWS Lambda) ร่วมกับบริการจัดเก็บไฟล์ (เช่น AWS S3 หรือ Firebase Storage)
+**Technologies:**
+- Uses serverless functions (e.g., AWS Lambda) combined with storage services (e.g., AWS S3 or Firebase Storage).
 
-**เหตุผล:**
-- ลดภาระของระบบในการจัดการไฟล์มีเดีย
-- เพิ่มประสิทธิภาพในการจัดการและประมวลผลไฟล์มีเดีย
+**Reasons:**
+- Reduces system load by offloading media management.
+- Improves efficiency in handling and processing media files.
 
 
 
 ## Feed Service
-**หน้าที่:**
-- จัดเตรียมเนื้อหา feed แบบ personalized ให้กับผู้ใช้งาน
+**Responsibilities:**
+- Generates personalized content feeds for users.
 
-**เทคโนโลยี:**
-- ใช้ caching (เช่น Redis)
-- ใช้ฐานข้อมูล NoSQL เพื่อรองรับการเข้าถึงข้อมูลที่รวดเร็ว
+**Technologies:**
+- Uses caching (e.g., Redis).
+- Employs NoSQL databases for fast data retrieval.
 
-**เหตุผล:**
-- รองรับการเข้าถึงข้อมูลที่รวดเร็ว
-- ปรับขนาดได้ตามการใช้งานจริง
+**Reasons:**
+- Ensures fast data access.
+- Scales effectively with user demand.
 
 
 
 ## Interaction Service
-**หน้าที่:**
-- จัดการการโต้ตอบของผู้ใช้งาน เช่น การกดไลค์และคอมเมนต์
-- ส่งการแจ้งเตือนให้กับเจ้าของคอนเทนต์
+**Responsibilities:**
+- Manages user interactions such as likes and comments.
+- Sends notifications to content owners.
 
-**เทคโนโลยี:**
-- ใช้ message broker (เช่น RabbitMQ หรือ AWS SQS) เพื่อประมวลผลคำขอแบบ asynchronous
+**Technologies:**
+- Uses a message broker (e.g., RabbitMQ or AWS SQS) to process requests asynchronously.
 
-**เหตุผล:**
-- ลด latency ในการตอบสนอง
-- รองรับการประมวลผลคำขอที่มีความซับซ้อน
+**Reasons:**
+- Reduces latency in response times.
+- Handles complex request processing efficiently.
 
 
 
 ## Messaging Service
-**หน้าที่:**
-- ให้บริการแชทแบบ real-time ระหว่างผู้ใช้งาน
+**Responsibilities:**
+- Provides real-time chat functionality between users.
 
-**เทคโนโลยี:**
-- ใช้ WebSocket หรือโปรโตคอลที่เหมาะสมสำหรับการสื่อสารแบบเรียลไทม์
+**Technologies:**
+- Uses WebSocket or an appropriate real-time communication protocol.
 
-**เหตุผล:**
-- สนับสนุนการสื่อสารที่รวดเร็ว
-- ตอบสนองต่อผู้ใช้งานในทันที
+**Reasons:**
+- Supports fast and responsive communication.
+- Provides instant interaction for users.
 
 
 
 ## Notification Service
-**หน้าที่:**
-- ส่ง push notifications, SMS หรืออีเมลแจ้งเตือนแก่ผู้ใช้งาน
+**Responsibilities:**
+- Sends push notifications, SMS, or email alerts to users.
 
-**เหตุผล:**
-- แยกการจัดการแจ้งเตือนออกจากบริการหลัก
-- สามารถปรับขนาดและจัดการได้อย่างมีประสิทธิภาพ
+**Reasons:**
+- Decouples notification management from core services.
+- Allows scalable and efficient notification handling.
 
 
 
 ## Analytics Service
-**หน้าที่:**
-- รวบรวมและวิเคราะห์ข้อมูลการใช้งาน เช่น การดูเนื้อหาและการมีส่วนร่วม
+**Responsibilities:**
+- Collects and analyzes user activity data, such as content views and engagement.
 
-**เทคโนโลยี:**
-- ใช้ data pipeline (เช่น AWS Kinesis)
-- ใช้ data warehouse (เช่น Redshift) สำหรับการประมวลผลและสร้างรายงาน
+**Technologies:**
+- Uses data pipelines (e.g., AWS Kinesis).
+- Employs data warehouses (e.g., Redshift) for processing and reporting.
 
-**เหตุผล:**
-- ช่วยให้ผู้ดูแลระบบวิเคราะห์พฤติกรรมของผู้ใช้
-- ปรับปรุงแอปพลิเคชันในอนาคตจากข้อมูลที่วิเคราะห์ได้
+**Reasons:**
+- Enables administrators to analyze user behavior.
+- Helps improve the application based on data-driven insights.
 
 
 
-# ข้อดี, ข้อเสีย และความเสี่ยงของสถาปัตยกรรมนี้
+# Pros, Cons, and Risks of This Architecture
 
-## ข้อดี (Pros)
-- **Modularity:** แยกความรับผิดชอบของแต่ละ service ทำให้สามารถพัฒนาและ deploy แยกกันได้
-- **Scalability:** แต่ละ service สามารถปรับขนาดได้ตามการใช้งานจริง
-- **Flexibility:** สามารถเลือกใช้เทคโนโลยีที่เหมาะสมกับแต่ละ service
+## Pros
+- **Modularity:** Services are separated by responsibility, allowing independent development and deployment.
+- **Scalability:** Each service can scale independently based on demand.
+- **Flexibility:** Different technologies can be chosen for each service.
 
-## ข้อเสีย (Cons)
-- **ความซับซ้อน:** การบริหารจัดการระบบ distributed ที่มีหลาย service อาจซับซ้อนในเรื่องของ inter-service communication และ distributed logging
-- **Latency:** การสื่อสารระหว่าง microservices อาจเพิ่มเวลาในการตอบสนอง
+## Cons
+- **Complexity:** Managing a distributed system with multiple services can be challenging, particularly in inter-service communication and distributed logging.
+- **Latency:** Communication between microservices may increase response times.
 
-## ความเสี่ยง (Risks)
-- **Data Consistency:** การรักษาความสอดคล้องของข้อมูลในระบบ distributed อาจเป็นความท้าทาย
-- **Deployment Complexity:** การ deploy และจัดการหลาย service ที่แยกกันอาจต้องใช้เครื่องมือและกระบวนการที่ซับซ้อน
+## Risks
+- **Data Consistency:** Maintaining data consistency across distributed services can be challenging.
+- **Deployment Complexity:** Deploying and managing multiple independent services requires sophisticated tools and processes.
